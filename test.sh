@@ -1,3 +1,3 @@
 #!/bin/sh
-cat /ハンバーガー.txt
+cat /ありがとう.txt
 cat "/ひらがな added from HFS.txt"
