@@ -1,8 +1,10 @@
 # APFS Japanese Kana Compatibility PoC
 
+Read more on this detailed post: [Accented Latin and Kana File Names Finally Work as Expected in APFS](https://medium.com/@yorkxin/apfs-docker-unicode-6e9893c9385d)
+
 ## Problem of Kana File Name
 
-In HFS+, file name will be decomposed to Unicode NFD form. So a file named `ハンバーガー` will be decomposed to `ハンハ<U+3099>ーカ<U+3099>ー`,
+In HFS+, file name will be decomposed to Unicode NFD form. So a file named `ありがとう` will be decomposed to `ありか<U+3099>とう`,
 where [U+3099 is a 濁点 sound mark](https://codepoints.net/U+3099).
 
 When we build an image that is based on Linux, Docker doesn't compose the string back to NFC form, 
@@ -12,11 +14,11 @@ For example:
 
 ```
 $ docker build -t test-image .
-$ docker run test-image /test.sh
-cat: can't open '/ハンバーガー.txt': No such file or directory
+$ docker run test-image cat ありがとう.txt
+cat: can't open '/ありがとう.txt': No such file or directory
 ```
 
-Becuase the file name is in NFD form, it can only be accessed by `ハンハ<U+3099>ーカ<U+3099>ー.txt`.
+Becuase the file name is in NFD form, it can only be accessed by `ありか<U+3099>とう.txt`.
 
 ## APFS has no such problem
 
@@ -35,26 +37,11 @@ Now try again:
 
 ```
 $ docker build -t test-image .
-$ docker run test-image /test.sh
-🍔
+$ docker run test-image ありがとう.txt
+ありがとう means Thank You!
 ```
 
 It works :sparkles:
-
-## For files checked in from HFS+
-
-Actually Git will convert the file name to NFC, so it still works in Linux:
-
-```
-$ docker run test-image /test.sh
-🍔
-ひらがな added from HFS
-```
-
-## See also
-
-* [Frequently Asked Questions](https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/APFS_Guide/FAQ/FAQ.html#//apple_ref/doc/uid/TP40016999-CH6-DontLinkElementID_3)
-* [日本の文字とUnicode　第3回 | 大修館書店　WEB国語教室](http://www.taishukan.co.jp/kokugo/webkoku/series003_03.html)
 
 ## License
 
